@@ -16,7 +16,14 @@ const prefix = config.prefix;
 
 // When the server is ready
 client.once('ready', () => {
-	console.log(`[${getTimestamp()}] ark-bot started!`);
+    console.log(`[${getTimestamp()}] ark-bot started!`);
+    client.user.setPresence({
+        game: { 
+            name: "with other otters",
+            type: 'PLAYING'
+        },
+        status: 'online'
+    });
 });
 
 client.on('message', message => {
@@ -145,26 +152,31 @@ const isRunning = (query, cb) => {
 }
 
 function startServer(message, map) {
-        if(map === "island"){    
-            server = spawn('start_island.bat', [] ,{cwd: "C:\\Ark\\ArkServer\\ShooterGame\\Binaries\\Win64\\", shell: true});
-        } else if (map === "aberration") {
-            server = spawn('start_aberration.bat', [] ,{cwd: "C:\\Ark\\ArkServer\\ShooterGame\\Binaries\\Win64\\", shell: true});
-        } else if (map === "valguero") {
-            server = spawn('start_valguero.bat', [] ,{cwd: "C:\\Ark\\ArkServer\\ShooterGame\\Binaries\\Win64\\", shell: true});
-        } else if (map === "newisland") {
-            server = spawn('start_newisland.bat', [] ,{cwd: "C:\\Ark\\ArkServer\\ShooterGame\\Binaries\\Win64\\", shell: true});
-        } else {
-            console.log(`[${getTimestamp()}] (${message.author.tag}): start - INVALID MAP ARG: ${map}`);
-        }
+    if(map === "island"){    
+        server = spawn('start_island.bat', [] ,{cwd: "C:\\Ark\\ArkServer\\ShooterGame\\Binaries\\Win64\\", shell: true});
+    } else if (map === "aberration") {
+        server = spawn('start_aberration.bat', [] ,{cwd: "C:\\Ark\\ArkServer\\ShooterGame\\Binaries\\Win64\\", shell: true});
+    } else if (map === "valguero") {
+        server = spawn('start_valguero.bat', [] ,{cwd: "C:\\Ark\\ArkServer\\ShooterGame\\Binaries\\Win64\\", shell: true});
+    } else if (map === "newisland") {
+        server = spawn('start_newisland.bat', [] ,{cwd: "C:\\Ark\\ArkServer\\ShooterGame\\Binaries\\Win64\\", shell: true});
+    } else {
+        console.log(`[${getTimestamp()}] (${message.author.tag}): start - INVALID MAP ARG: ${map}`);
+    }
 }
 
 function updateServer(message) {
+    // SteamCMD update script for ARK
     let options = [ 
         '+login', 'anonymous', 
         "+force_install_dir", "C:\\Ark\\ArkServer", 
         "+app_update", "376030", "exit"
     ]
+
+    // Start SteamCMD and attempt to update
     let update = spawn('steamcmd', options, {cwd: "C:\\Ark\\steamcmd"});
+
+    // Wait for output from SteamCMD, then send it to discord and console
     readline.createInterface({
         input: update.stdout
     }).on('line', line => {
@@ -174,13 +186,30 @@ function updateServer(message) {
 }
 
 function stopServer() {
+    // Attempt to stop the server process
     exec(`taskkill /im ShooterGameServer.exe /t`, (err, stdout, stderr) => {
+        // This should never run since we already made sure the process exists
         if (err) {
-          throw err
+          throw err;
         }
-    
-        if(stdout) console.log('stdout', stdout);
-        if(stderr) console.log('stderr', err);
+
+        // The /^(?!\s*$).+/ regex keeps any blank lines from cluttering the output
+        if(stdout) {
+            stdout.split('\n').forEach(line => {
+                if(/^(?!\s*$).+/.test(line)) {
+                    console.log(`[${getTimestamp()}] (TASKKILL):`, 'stdout -', line);
+                }
+            });
+        }
+
+        // The /^(?!\s*$).+/ regex keeps any blank lines from cluttering the output
+        if(stderr) {
+            stderr.split('\n').forEach(line => {
+                if(/^(?!\s*$).+/.test(line))  {
+                    console.log(`[${getTimestamp()}] (TASKKILL):`, 'stderr -',line);
+                }
+            });
+        }
       })
 }
 
