@@ -13,6 +13,7 @@ const client = new Discord.Client();
 
 // Config
 const prefix = config.prefix;
+const reconnect_delay = config.reconnect_delay;
 
 // When the server is ready
 client.once('ready', () => {
@@ -135,6 +136,23 @@ client.on('message', message => {
             }
         });
     }
+});
+
+// Attempt to reconnect if the bot ever disconnects
+client.on('error', error => {
+    console.log(`[${getTimestamp()}] (ERROR) - ${error.message}`);
+    console.log(`[${getTimestamp()}] attempting to reconnect...`);
+    let reconnect = setInterval(() => {
+        if(client.status === 0) {
+            clearInterval(reconnect);
+            console.log(`[${getTimestamp()}] ark-bot reconnected!`);
+        }
+        else {
+            client.login(token).catch(() => {
+                console.log(`[${getTimestamp()}] reconnect failed. trying again...`);
+            });
+        }
+    }, reconnect_delay);
 });
 
 
