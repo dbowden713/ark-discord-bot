@@ -16,11 +16,11 @@ const prefix = config.prefix;
 const reconnect_delay = config.reconnect_delay;
 
 // When the server is ready
-client.once('ready', () => {
-    console.log(`[${getTimestamp()}] ark-bot started!`);
+client.on('ready', () => {
+    console.log(`[${getTimestamp()}] ark-bot connected!`);
     client.user.setPresence({
         game: { 
-            name: "with other otters",
+            name: "with otters",
             type: 'PLAYING'
         },
         status: 'online'
@@ -145,7 +145,6 @@ client.on('error', error => {
     let reconnect = setInterval(() => {
         if(client.status === 0) {
             clearInterval(reconnect);
-            console.log(`[${getTimestamp()}] ark-bot reconnected!`);
         }
         else {
             client.login(token).catch(() => {
@@ -158,7 +157,8 @@ client.on('error', error => {
 
 // Return a new date in 24-hour format: 14:22:39
 function getTimestamp() {
-    return new Date().toLocaleTimeString('en-us', { hour12: false });
+    let date = new Date();
+    return date.toLocaleDateString('en-US', {month: '2-digit', day: '2-digit', year: 'numeric'}) + ' ' + date.toLocaleTimeString('en-us', { hour12: false });
 }
 
 // Uses tasklist command and checks for (query) in the process list, with a callback for the result
