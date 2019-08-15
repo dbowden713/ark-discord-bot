@@ -1,4 +1,11 @@
 {
 	"prefix": "!",
-	"reconnect_delay": 5000
+	"reconnect_delay": 5000,
+	"authorized_users": [
+		"Old Man#1726",
+		"Keilania#6826"
+	],
+	"authorized_roles": [
+		"test"
+	]
 }

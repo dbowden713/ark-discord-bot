@@ -31,12 +31,17 @@ client.on('message', message => {
     // Only respond to messages with the prefix, and only respond to non-bots
     if (!message.content.startsWith(prefix) || message.author.bot) return;
 
-    // Check for authorized users, but only respond to DMs
-    if (message.author.tag !== "Old Man#1726" && message.author.tag !== "Keilania#6826") {
+    // Commands must be from text or DM channels
+    if (message.channel.type !== "dm" &&  message.channel.type !== "text") return;
+
+    // Check if the user is authorized. Server admins are always allowed.
+    if (!userIsAuthorized(message)) {
+        console.log(`[${getTimestamp()}] (${message.author.tag}): ERROR - unauthorized user`);
+        // Reply to DMs
         if (message.channel.type === "dm") {
             message.reply("I can't do that! (unauthorized user)");
-            return;
         }
+        return; // Stop command execution
     }
 
     // Check for command arguments from discord and split into array
@@ -46,6 +51,7 @@ client.on('message', message => {
     // !ip returns the external ip address of the bot
     if (command === 'ip') {
         axios.get("https://www.myexternalip.com/json").then(response => {
+            console.log(`[${getTimestamp()}] (${message.author.tag}): ip - ${response.data.ip}`);
             message.reply(`IP: ${response.data.ip}`);
         });
     }
@@ -136,6 +142,10 @@ client.on('message', message => {
             }
         });
     }
+
+    if (command === 'test') {
+        console.log('success!');
+    }
 });
 
 // Attempt to reconnect if the bot ever disconnects
@@ -159,6 +169,29 @@ client.on('error', error => {
 function getTimestamp() {
     let date = new Date();
     return date.toLocaleDateString('en-US', {month: '2-digit', day: '2-digit', year: 'numeric'}) + ' ' + date.toLocaleTimeString('en-us', { hour12: false });
+}
+
+function userIsAuthorized(message) {
+    // Check for authorized users, but only respond to DMs
+    // Users in the authorized_users whitelist skip server role checks
+    
+    // Check for user tag in the authorized_users whitelist
+    if(config.authorized_users.includes(message.author.tag)) return true;
+    
+    // Check for user role in the authorized_roles whitelist
+    if(message.channel.type === "text") {
+        // Always allow server admins
+        if(message.member.hasPermission('ADMINISTRATOR')) return true;
+
+        // Check each role the user has against the authorized_roles
+        console.log(message.member.roles);
+        let hasAuthorizedRole = message.member.roles.some(role => {
+            return config.authorized_roles.includes(role.name);
+        });
+        if(hasAuthorizedRole) return true;
+    }
+
+    return false;
 }
 
 // Uses tasklist command and checks for (query) in the process list, with a callback for the result
