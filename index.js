@@ -217,19 +217,24 @@ function updateServer(message) {
     let options = [ 
         '+login', 'anonymous', 
         "+force_install_dir", "C:\\Ark\\ArkServer", 
-        "+app_update", "376030", "exit"
+        "+app_update", "376030", 
+        "+quit"
     ]
 
     // Start SteamCMD and attempt to update
     let update = spawn('steamcmd', options, {cwd: "C:\\Ark\\steamcmd"});
 
+    update.stdout.on('data', data => {
+        console.log(`${data}`);
+    });
+
+
     // Wait for output from SteamCMD, then send it to discord and console
-    readline.createInterface({
+    /* readline.createInterface({
         input: update.stdout
     }).on('line', line => {
         console.log(line);
-        if (line != '') message.channel.send(`\`${line}\``);
-    });
+    }); */
 }
 
 function stopServer() {
