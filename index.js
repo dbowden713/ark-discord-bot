@@ -18,6 +18,7 @@ const reconnect_delay = config.reconnect_delay;
 // When the server is ready
 client.on('ready', () => {
     console.log(`[${getTimestamp()}] ark-bot connected!`);
+    // Set ark-bot discord status
     client.user.setPresence({
         game: { 
             name: "with otters",
@@ -41,10 +42,10 @@ client.on('message', message => {
         if (message.channel.type === "dm") {
             message.reply("I can't do that! (unauthorized user)");
         }
-        return; // Stop command execution
+        return; // Stop command execution here
     }
 
-    // Check for command arguments from discord and split into array
+    // Check for command arguments and split into array
     const args = message.content.slice(prefix.length).split(' ');
     const command = args.shift().toLowerCase();
 
@@ -56,28 +57,34 @@ client.on('message', message => {
         });
     }
 
-    // !start attempts to start the server if it isn't already running
+    // !start attempts to start a server if one isn't already running
     if (command === 'start') {
         isRunning('ShooterGameServer.exe', status => {
+            // Do nothing if a server instance is already running
             if (status) {
                 console.log(`[${getTimestamp()}] (${message.author.tag}): start - server is already running`);
                 message.reply("The server is already running! :thinking:");
             } else {
+                // No map name given. Example: !start
                 if(args.length === 0) {
                     console.log(`[${getTimestamp()}] (${message.author.tag}): start - NO MAP GIVEN!`);
                     message.reply("Please give a map to start! :dizzy_face:");
                     message.channel.send("Example: \`!start island\`");
                     message.channel.send("Maps: \`island, aberration, valguero, newisland\`");
+                // Too many arguments given. Example: !start my map
                 } else if (args.length > 1) {
                     console.log(`[${getTimestamp()}] (${message.author.tag}): start - TOO MANY ARGS: ${args}`);
                     message.reply("IDK What you're saying! :sob:");
                     message.channel.send("Example: \`!start island\`");
                     message.channel.send("Maps: \`island, aberration, valguero, newisland\`");
+                // One argument given. Check that it is actually a valid map name
                 } else {
+                    // If the argument was a valid map name
                     if(args[0] === "island" || args[0] === "aberration" || args[0] === "valguero" || args[0] === "newisland") {
                         console.log(`[${getTimestamp()}] (${message.author.tag}): start - ${args[0]}`);
                         message.reply(`Starting the \`${args[0]}\` server! :thumbsup:`);
                         startServer(message, args[0]);
+                    // If the argument wasn't a correct map name
                     } else {
                         console.log(`[${getTimestamp()}] (${message.author.tag}): start - INVALID MAP: ${args[0]}`);
                         message.reply("That's not a map! :angry:");
@@ -102,8 +109,9 @@ client.on('message', message => {
         })
     }
 
-    // !status the bot displays the current server status
+    // !status displays the current server status. Checks local process list and Steam API
     if (command === 'status') {
+        // Check local process list
         isRunning('ShooterGameServer.exe', status => {
             if (status) {
                 console.log(`[${getTimestamp()}] (${message.author.tag}): status - running`);
@@ -113,6 +121,8 @@ client.on('message', message => {
                 message.reply("Local: The server isn't running. :thumbsdown:");
             }
         });
+
+        // Check Steam API
         axios.get("https://www.myexternalip.com/json").then(response => {
             axios.get(`http://api.steampowered.com/ISteamApps/GetServersAtAddress/v1?addr=${response.data.ip}`).then(response => {
                 if(response.data.response.success === true) {
@@ -128,7 +138,9 @@ client.on('message', message => {
         });
     }
 
+    // !update updates the server using SteamCMD
     if (command === 'update') {
+        // The server should be stopped before updating
         isRunning('ShooterGameServer.exe', status => {
             if (status) {
                 console.log(`[${getTimestamp()}] (${message.author.tag}): update - stopping server to update`);
