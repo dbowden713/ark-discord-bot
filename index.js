@@ -142,10 +142,6 @@ client.on('message', message => {
             }
         });
     }
-
-    if (command === 'test') {
-        console.log('success!');
-    }
 });
 
 // Attempt to reconnect if the bot ever disconnects
@@ -172,8 +168,9 @@ function getTimestamp() {
 }
 
 function userIsAuthorized(message) {
-    // Check for authorized users, but only respond to DMs
-    // Users in the authorized_users whitelist skip server role checks
+    // Check if user has a whitelisted name or role
+    // Server admins are always allowed
+    // Users in the authorized_users whitelist skip server role checks (allows DMs)
     
     // Check for user tag in the authorized_users whitelist
     if(config.authorized_users.includes(message.author.tag)) return true;
@@ -184,7 +181,6 @@ function userIsAuthorized(message) {
         if(message.member.hasPermission('ADMINISTRATOR')) return true;
 
         // Check each role the user has against the authorized_roles
-        console.log(message.member.roles);
         let hasAuthorizedRole = message.member.roles.some(role => {
             return config.authorized_roles.includes(role.name);
         });
