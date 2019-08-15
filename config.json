@@ -5,5 +5,7 @@
 	],
 	"authorized_roles": [
 		"Otter Tamer"
-	]
+	],
+	"steamcmd_dir": "C:\\Ark\\SteamCMD",
+	"arkserver_dir": "C:\\Ark\\ArkServer"
 }

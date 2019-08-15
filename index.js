@@ -164,7 +164,7 @@ client.on('error', error => {
 // Return a new date in 24-hour format: 14:22:39
 function getTimestamp() {
     let date = new Date();
-    return date.toLocaleDateString('en-US', {month: '2-digit', day: '2-digit', year: 'numeric'}) + ' ' + date.toLocaleTimeString('en-us', { hour12: false });
+    return date.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }) + ' ' + date.toLocaleTimeString('en-us', { hour12: false });
 }
 
 function userIsAuthorized(message) {
@@ -216,13 +216,13 @@ function updateServer(message) {
     // SteamCMD update script for ARK
     let options = [ 
         '+login', 'anonymous', 
-        "+force_install_dir", "C:\\Ark\\ArkServer", 
+        "+force_install_dir", config.arkserver_dir, 
         "+app_update", "376030", 
         "+quit"
     ]
 
     // Start SteamCMD and attempt to update
-    let update = spawn('steamcmd', options, {cwd: "C:\\Ark\\steamcmd"});
+    let update = spawn('steamcmd', options, {cwd: config.steamcmd_dir});
 
     update.stdout.on('data', data => {
         console.log(`${data}`);
@@ -265,5 +265,5 @@ function stopServer() {
       })
 }
 
-// Login to discord with the token from config.json
+// Login to discord with the token from token.json
 client.login(token);
