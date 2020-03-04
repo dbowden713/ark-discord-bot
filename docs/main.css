@@ -1,0 +1,10 @@
+body {
+  margin: 0;
+  padding: 0;
+}
+
+.jumbotron {
+  background-image: url("./img/hero.jpg");
+  background-position: center;
+}
+/*# sourceMappingURL=main.css.map */

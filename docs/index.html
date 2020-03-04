@@ -3,9 +3,124 @@
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<link
+			rel="stylesheet"
+			href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+			integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
+			crossorigin="anonymous"
+		/>
+		<link rel="stylesheet" href="main.css" />
 		<title>Ark Discord Bot</title>
 	</head>
 	<body>
-		GitHub Page Test
+		<div class="jumbotron jumbotron-fluid mb-5">
+			<div class="container-fluid text-center text-light">
+				<h1 class="display-4">
+					Ark <span class="d-none d-sm-inline">Discord </span>Bot
+				</h1>
+				<p class="lead">
+					A simple discord based server controller for ARK: Survival
+					Evolved.
+				</p>
+			</div>
+		</div>
+		<div class="container">
+			<div class="row justify-content-between align-items-center mb-5">
+				<img
+					src="./img/discord.png"
+					class=" image-fluid float-left mb-3"
+				/>
+				<div class="col mx-3 ml-lg-5 p-xs-2 p-md-0">
+					<div class="row">
+						<h2 class="mb-3">Easy-To-Use Discord Bot</h2>
+					</div>
+					<div class="row">
+						<p class="lead">
+							Easily control your local ARK: Survival Evolved
+							server via discord commands.
+						</p>
+					</div>
+				</div>
+			</div>
+			<div class="row justify-content-between align-items-center mb-5">
+				<img
+					src="./img/node.png"
+					class="image-fluid float-right order-md-2 mb-3"
+				/>
+				<div class="col mx-3 p-xs-2 p-md-0 order-md-1">
+					<div class="row">
+						<h2 class="mb-3">Built with DiscordJS and NodeJS</h2>
+					</div>
+					<div class="row">
+						<p class="lead">
+							Uses Discord hooks to start, stop, and update the
+							server. Only allows commands from approved user
+							roles.
+						</p>
+					</div>
+				</div>
+			</div>
+			<div class="list-group mb-5">
+				<div class="list-group-item bg-dark text-light">
+					<h5 class="text-center">Commands</h5>
+				</div>
+				<div class="list-group-item d-flex justify-content-between">
+					<p class="mb-1 mr-5">!start [map]</p>
+					<p class="mb-1 text-right">
+						Start the server with the given map name.
+					</p>
+				</div>
+				<div
+					class="list-group-item d-flex justify-content-between bg-light"
+				>
+					<p class="mb-1 mr-5">!stop</p>
+					<p class="mb-1 text-right">
+						Stop the server if it is running.
+					</p>
+				</div>
+				<div class="list-group-item d-flex justify-content-between">
+					<p class="mb-1 mr-5">!status</p>
+					<p class="mb-1 text-right">
+						Checks local processes and the Steam API for server
+						status.
+					</p>
+				</div>
+				<div
+					class="list-group-item d-flex justify-content-between bg-light"
+				>
+					<p class="mb-1 mr-5">!ip</p>
+					<p class="mb-1 text-right">
+						Gives IP address of the server. Useful for DHCP-based
+						ISPs, especially after updates.
+					</p>
+				</div>
+				<div class="list-group-item d-flex justify-content-between">
+					<p class="mb-1 mr-5">!update</p>
+					<p class="mb-1 text-right">
+						Updates the server using SteamCMD, if it is available.
+						Work-in-progress!
+					</p>
+				</div>
+				<div
+					class="list-group-item d-flex justify-content-between bg-light"
+				></div>
+			</div>
+		</div>
+
+		<script
+			src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+			integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
+			crossorigin="anonymous"
+		></script>
+		<script
+			src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+			integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+			crossorigin="anonymous"
+		></script>
+		<script
+			src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
+			integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
+			crossorigin="anonymous"
+		></script>
 	</body>
 </html>
