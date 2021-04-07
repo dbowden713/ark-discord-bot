@@ -51,7 +51,7 @@ client.on("message", message => {
 	}
 
 	// Check for command arguments and split into array
-	const args = message.content.slice(prefix.length).split(" ");
+	const args = message.content.slice(prefix.length).toLowerCase().split(" ");
 	const command = args.shift().toLowerCase();
 
 	// !ip returns the external ip address of the bot
@@ -88,7 +88,7 @@ client.on("message", message => {
 					message.reply("Please give a map to start! :dizzy_face:");
 					message.channel.send("Example: `!start island`");
 					message.channel.send(
-						"Maps: `island, aberration, valguero, newisland, genesis`"
+						"Maps: `island, scorchedearth, ragnarok, aberration, valguero, newisland, genesis, crystalisles`"
 					);
 					// Too many arguments given. Example: !start my map
 				} else if (args.length > 1) {
@@ -100,17 +100,20 @@ client.on("message", message => {
 					message.reply("IDK What you're saying! :sob:");
 					message.channel.send("Example: `!start island`");
 					message.channel.send(
-						"Maps: `island, aberration, valguero, newisland, genesis`"
+						"Maps: `island, scorchedearth, ragnarok, aberration, valguero, newisland, genesis, crystalisles`"
 					);
 					// One argument given. Check that it is actually a valid map name
 				} else {
 					// If the argument was a valid map name
 					if (
 						args[0] === "island" ||
+						args[0] === "scorchedearth" ||
+						args[0] === "ragnarok" ||
 						args[0] === "aberration" ||
 						args[0] === "valguero" ||
 						args[0] === "newisland" ||
-						args[0] === "genesis"
+						args[0] === "genesis" ||
+						args[0] === "crystalisles"
 					) {
 						console.log(
 							`[${getTimestamp()}] (${
@@ -130,7 +133,7 @@ client.on("message", message => {
 						);
 						message.reply("That's not a map! :angry:");
 						message.channel.send(
-							"Maps: `island, aberration, valguero, newisland, genesis`"
+							"Maps: `island, scorchedearth, ragnarok, aberration, valguero, newisland, genesis, crystalisles`"
 						);
 					}
 				}
@@ -303,6 +306,16 @@ function startServer(message, map) {
 			cwd: "C:\\Ark\\ArkServer\\ShooterGame\\Binaries\\Win64\\",
 			shell: true
 		});
+	} else if (map === "scorchedearth") {
+		server = spawn("start_scorchedearth.bat", [], {
+			cwd: "C:\\Ark\\ArkServer\\ShooterGame\\Binaries\\Win64\\",
+			shell: true
+		});
+	} else if (map === "ragnarok") {
+		server = spawn("start_ragnarok.bat", [], {
+			cwd: "C:\\Ark\\ArkServer\\ShooterGame\\Binaries\\Win64\\",
+			shell: true
+		});
 	} else if (map === "aberration") {
 		server = spawn("start_aberration.bat", [], {
 			cwd: "C:\\Ark\\ArkServer\\ShooterGame\\Binaries\\Win64\\",
@@ -320,6 +333,11 @@ function startServer(message, map) {
 		});
 	} else if (map === "genesis") {
 		server = spawn("start_genesis.bat", [], {
+			cwd: "C:\\Ark\\ArkServer\\ShooterGame\\Binaries\\Win64\\",
+			shell: true
+		});
+	} else if (map === "crystalisles") {
+		server = spawn("start_crystalisles.bat", [], {
 			cwd: "C:\\Ark\\ArkServer\\ShooterGame\\Binaries\\Win64\\",
 			shell: true
 		});
