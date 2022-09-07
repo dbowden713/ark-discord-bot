@@ -1,4 +1,9 @@
-const Discord = require("discord.js");
+const {
+	Client,
+	GatewayIntentBits,
+	ActivityType,
+	ChannelType,
+} = require("discord.js");
 const axios = require("axios");
 const { spawn, exec } = require("child_process");
 const readline = require("readline");
@@ -9,31 +14,43 @@ const config = require("./config.json");
 const { token } = require("./token.json");
 
 // Start a new discord client
-const client = new Discord.Client();
+const client = new Client({
+	intents: [
+		GatewayIntentBits.Guilds,
+		GatewayIntentBits.GuildMessages,
+		GatewayIntentBits.MessageContent,
+		GatewayIntentBits.GuildMembers,
+	],
+});
 
 // Config
 const prefix = config.prefix;
 const reconnect_delay = config.reconnect_delay;
 
 // When the server is ready
-client.on("ready", () => {
+client.once("ready", () => {
 	console.log(`[${getTimestamp()}] ark-bot connected!`);
 	// Set ark-bot discord status
 	client.user.setPresence({
-		game: {
-			name: "with otters",
-			type: "PLAYING"
-		},
-		status: "online"
+		activities: [
+			{
+				name: "with otters",
+				type: ActivityType.Playing,
+			},
+		],
+		status: "online",
 	});
 });
 
-client.on("message", message => {
+client.on("messageCreate", (message) => {
 	// Only respond to messages with the prefix, and only respond to non-bots
 	if (!message.content.startsWith(prefix) || message.author.bot) return;
 
 	// Commands must be from text or DM channels
-	if (message.channel.type !== "dm" && message.channel.type !== "text")
+	if (
+		message.channel.type !== ChannelType.DM &&
+		message.channel.type !== ChannelType.GuildText
+	)
 		return;
 
 	// Check if the user is authorized. Server admins are always allowed.
@@ -44,7 +61,7 @@ client.on("message", message => {
 			}): ERROR - unauthorized user`
 		);
 		// Reply to DMs
-		if (message.channel.type === "dm") {
+		if (message.channel.type === ChannelType.DM) {
 			message.reply("I can't do that! (unauthorized user)");
 		}
 		return; // Stop command execution here
@@ -56,7 +73,7 @@ client.on("message", message => {
 
 	// !ip returns the external ip address of the bot
 	if (command === "ip") {
-		axios.get("https://www.myexternalip.com/json").then(response => {
+		axios.get("https://www.myexternalip.com/json").then((response) => {
 			console.log(
 				`[${getTimestamp()}] (${message.author.tag}): ip - ${
 					response.data.ip
@@ -68,7 +85,7 @@ client.on("message", message => {
 
 	// !start attempts to start a server if one isn't already running
 	if (command === "start") {
-		isRunning("ShooterGameServer.exe", status => {
+		isRunning("ShooterGameServer.exe", (status) => {
 			// Do nothing if a server instance is already running
 			if (status) {
 				console.log(
@@ -88,7 +105,7 @@ client.on("message", message => {
 					message.reply("Please give a map to start! :dizzy_face:");
 					message.channel.send("Example: `!start island`");
 					message.channel.send(
-						"Maps: `island, scorchedearth, ragnarok, aberration, valguero, newisland, genesis, crystalisles`"
+						"Maps: `island, scorchedearth, ragnarok, aberration, valguero, lostisland, genesis, crystalisles`"
 					);
 					// Too many arguments given. Example: !start my map
 				} else if (args.length > 1) {
@@ -100,7 +117,7 @@ client.on("message", message => {
 					message.reply("IDK What you're saying! :sob:");
 					message.channel.send("Example: `!start island`");
 					message.channel.send(
-						"Maps: `island, scorchedearth, ragnarok, aberration, valguero, newisland, genesis, crystalisles`"
+						"Maps: `island, scorchedearth, ragnarok, aberration, valguero, lostisland, genesis, crystalisles`"
 					);
 					// One argument given. Check that it is actually a valid map name
 				} else {
@@ -111,7 +128,7 @@ client.on("message", message => {
 						args[0] === "ragnarok" ||
 						args[0] === "aberration" ||
 						args[0] === "valguero" ||
-						args[0] === "newisland" ||
+						args[0] === "lostisland" ||
 						args[0] === "genesis" ||
 						args[0] === "crystalisles"
 					) {
@@ -133,7 +150,7 @@ client.on("message", message => {
 						);
 						message.reply("That's not a map! :angry:");
 						message.channel.send(
-							"Maps: `island, scorchedearth, ragnarok, aberration, valguero, newisland, genesis, crystalisles`"
+							"Maps: `island, scorchedearth, ragnarok, aberration, valguero, lostisland, genesis, crystalisles`"
 						);
 					}
 				}
@@ -143,7 +160,7 @@ client.on("message", message => {
 
 	// !stop attempts to kill the server process if it's currently running
 	if (command === "stop") {
-		isRunning("ShooterGameServer.exe", status => {
+		isRunning("ShooterGameServer.exe", (status) => {
 			if (status) {
 				console.log(
 					`[${getTimestamp()}] (${
@@ -166,7 +183,7 @@ client.on("message", message => {
 	// !status displays the current server status. Checks local process list and Steam API
 	if (command === "status") {
 		// Check local process list
-		isRunning("ShooterGameServer.exe", status => {
+		isRunning("ShooterGameServer.exe", (status) => {
 			if (status) {
 				console.log(
 					`[${getTimestamp()}] (${
@@ -185,12 +202,12 @@ client.on("message", message => {
 		});
 
 		// Check Steam API
-		axios.get("https://www.myexternalip.com/json").then(response => {
+		axios.get("https://www.myexternalip.com/json").then((response) => {
 			axios
 				.get(
 					`http://api.steampowered.com/ISteamApps/GetServersAtAddress/v1?addr=${response.data.ip}`
 				)
-				.then(response => {
+				.then((response) => {
 					if (response.data.response.success === true) {
 						if (response.data.response.servers.length > 0) {
 							console.log(
@@ -215,7 +232,7 @@ client.on("message", message => {
 	// !update updates the server using SteamCMD
 	if (command === "update") {
 		// The server should be stopped before updating
-		isRunning("ShooterGameServer.exe", status => {
+		isRunning("ShooterGameServer.exe", (status) => {
 			if (status) {
 				console.log(
 					`[${getTimestamp()}] (${
@@ -239,7 +256,7 @@ client.on("message", message => {
 });
 
 // Attempt to reconnect if the bot ever disconnects
-client.on("error", error => {
+client.on("error", (error) => {
 	console.log(`[${getTimestamp()}] (ERROR) - ${error.message}`);
 	console.log(`[${getTimestamp()}] attempting to reconnect...`);
 	let reconnect = setInterval(() => {
@@ -262,7 +279,7 @@ function getTimestamp() {
 		date.toLocaleDateString("en-US", {
 			month: "2-digit",
 			day: "2-digit",
-			year: "numeric"
+			year: "numeric",
 		}) +
 		" " +
 		date.toLocaleTimeString("en-us", { hour12: false })
@@ -278,12 +295,12 @@ function userIsAuthorized(message) {
 	if (config.authorized_users.includes(message.author.tag)) return true;
 
 	// Check for user role in the authorized_roles whitelist
-	if (message.channel.type === "text") {
+	if (message.channel.type === ChannelType.GuildText) {
 		// Always allow server admins
-		if (message.member.hasPermission("ADMINISTRATOR")) return true;
+		if (message.member.permissions.has("ADMINISTRATOR")) return true;
 
 		// Check each role the user has against the authorized_roles
-		let hasAuthorizedRole = message.member.roles.some(role => {
+		let hasAuthorizedRole = message.member.roles.cache.some((role) => {
 			return config.authorized_roles.includes(role.name);
 		});
 		if (hasAuthorizedRole) return true;
@@ -304,42 +321,42 @@ function startServer(message, map) {
 	if (map === "island") {
 		server = spawn("start_island.bat", [], {
 			cwd: "C:\\Ark\\ArkServer\\ShooterGame\\Binaries\\Win64\\",
-			shell: true
+			shell: true,
 		});
 	} else if (map === "scorchedearth") {
 		server = spawn("start_scorchedearth.bat", [], {
 			cwd: "C:\\Ark\\ArkServer\\ShooterGame\\Binaries\\Win64\\",
-			shell: true
+			shell: true,
 		});
 	} else if (map === "ragnarok") {
 		server = spawn("start_ragnarok.bat", [], {
 			cwd: "C:\\Ark\\ArkServer\\ShooterGame\\Binaries\\Win64\\",
-			shell: true
+			shell: true,
 		});
 	} else if (map === "aberration") {
 		server = spawn("start_aberration.bat", [], {
 			cwd: "C:\\Ark\\ArkServer\\ShooterGame\\Binaries\\Win64\\",
-			shell: true
+			shell: true,
 		});
 	} else if (map === "valguero") {
 		server = spawn("start_valguero.bat", [], {
 			cwd: "C:\\Ark\\ArkServer\\ShooterGame\\Binaries\\Win64\\",
-			shell: true
+			shell: true,
 		});
-	} else if (map === "newisland") {
-		server = spawn("start_newisland.bat", [], {
+	} else if (map === "lostisland") {
+		server = spawn("start_lostisland.bat", [], {
 			cwd: "C:\\Ark\\ArkServer\\ShooterGame\\Binaries\\Win64\\",
-			shell: true
+			shell: true,
 		});
 	} else if (map === "genesis") {
 		server = spawn("start_genesis.bat", [], {
 			cwd: "C:\\Ark\\ArkServer\\ShooterGame\\Binaries\\Win64\\",
-			shell: true
+			shell: true,
 		});
 	} else if (map === "crystalisles") {
 		server = spawn("start_crystalisles.bat", [], {
 			cwd: "C:\\Ark\\ArkServer\\ShooterGame\\Binaries\\Win64\\",
-			shell: true
+			shell: true,
 		});
 	} else {
 		console.log(
@@ -359,13 +376,13 @@ function updateServer(message) {
 		config.arkserver_dir,
 		"+app_update",
 		"376030",
-		"+quit"
+		"+quit",
 	];
 
 	// Start SteamCMD and attempt to update
 	let update = spawn("steamcmd", options, { cwd: config.steamcmd_dir });
 
-	update.stdout.on("data", data => {
+	update.stdout.on("data", (data) => {
 		console.log(`${data}`);
 	});
 
@@ -387,7 +404,7 @@ function stopServer() {
 
 		// The /^(?!\s*$).+/ regex keeps any blank lines from cluttering the output
 		if (stdout) {
-			stdout.split("\n").forEach(line => {
+			stdout.split("\n").forEach((line) => {
 				if (/^(?!\s*$).+/.test(line)) {
 					console.log(
 						`[${getTimestamp()}] (TASKKILL):`,
@@ -400,7 +417,7 @@ function stopServer() {
 
 		// The /^(?!\s*$).+/ regex keeps any blank lines from cluttering the output
 		if (stderr) {
-			stderr.split("\n").forEach(line => {
+			stderr.split("\n").forEach((line) => {
 				if (/^(?!\s*$).+/.test(line)) {
 					console.log(
 						`[${getTimestamp()}] (TASKKILL):`,
