@@ -3,13 +3,14 @@ const {
 	GatewayIntentBits,
 	ActivityType,
 	ChannelType,
+	Collection,
 } = require("discord.js");
 const axios = require("axios");
 const { spawn, exec } = require("child_process");
 const readline = require("readline");
-const fs = require("fs");
-const util = require("util");
-
+const fs = require("node:fs");
+const path = require("node:path");
+const utils = require("./utils");
 const config = require("./config.json");
 const { token } = require("./token.json");
 
@@ -23,13 +24,28 @@ const client = new Client({
 	],
 });
 
+// Set up bot commands
+client.commands = new Collection();
+const commandsPath = path.join(__dirname, "commands");
+const commandFiles = fs
+	.readdirSync(commandsPath)
+	.filter((file) => file.endsWith(".js"));
+
+for (const file of commandFiles) {
+	const filePath = path.join(commandsPath, file);
+	const command = require(filePath);
+	// Set a new item in the Collection
+	// With the key as the command name and the value as the exported module
+	client.commands.set(command.data.name, command);
+}
+
 // Config
 const prefix = config.prefix;
 const reconnect_delay = config.reconnect_delay;
 
 // When the server is ready
 client.once("ready", () => {
-	console.log(`[${getTimestamp()}] ark-bot connected!`);
+	console.log(`[${utils.timestamp()}] ark-bot connected!`);
 	// Set ark-bot discord status
 	client.user.setPresence({
 		activities: [
@@ -40,6 +56,25 @@ client.once("ready", () => {
 		],
 		status: "online",
 	});
+});
+
+// Command handling
+client.on("interactionCreate", async (interaction) => {
+	if (!interaction.isChatInputCommand()) return;
+
+	const command = interaction.client.commands.get(interaction.commandName);
+
+	if (!command) return;
+
+	try {
+		await command.execute(interaction);
+	} catch (error) {
+		console.error(error);
+		await interaction.reply({
+			content: "There was an error while executing this command!",
+			ephemeral: true,
+		});
+	}
 });
 
 client.on("messageCreate", (message) => {
@@ -56,7 +91,7 @@ client.on("messageCreate", (message) => {
 	// Check if the user is authorized. Server admins are always allowed.
 	if (!userIsAuthorized(message)) {
 		console.log(
-			`[${getTimestamp()}] (${
+			`[${utils.timestamp()}] (${
 				message.author.tag
 			}): ERROR - unauthorized user`
 		);
@@ -71,25 +106,13 @@ client.on("messageCreate", (message) => {
 	const args = message.content.slice(prefix.length).toLowerCase().split(" ");
 	const command = args.shift().toLowerCase();
 
-	// !ip returns the external ip address of the bot
-	if (command === "ip") {
-		axios.get("https://www.myexternalip.com/json").then((response) => {
-			console.log(
-				`[${getTimestamp()}] (${message.author.tag}): ip - ${
-					response.data.ip
-				}`
-			);
-			message.reply(`IP: ${response.data.ip}`);
-		});
-	}
-
 	// !start attempts to start a server if one isn't already running
 	if (command === "start") {
 		isRunning("ShooterGameServer.exe", (status) => {
 			// Do nothing if a server instance is already running
 			if (status) {
 				console.log(
-					`[${getTimestamp()}] (${
+					`[${utils.timestamp()}] (${
 						message.author.tag
 					}): start - server is already running`
 				);
@@ -98,7 +121,7 @@ client.on("messageCreate", (message) => {
 				// No map name given. Example: !start
 				if (args.length === 0) {
 					console.log(
-						`[${getTimestamp()}] (${
+						`[${utils.timestamp()}] (${
 							message.author.tag
 						}): start - NO MAP GIVEN!`
 					);
@@ -110,7 +133,7 @@ client.on("messageCreate", (message) => {
 					// Too many arguments given. Example: !start my map
 				} else if (args.length > 1) {
 					console.log(
-						`[${getTimestamp()}] (${
+						`[${utils.timestamp()}] (${
 							message.author.tag
 						}): start - TOO MANY ARGS: ${args}`
 					);
@@ -133,7 +156,7 @@ client.on("messageCreate", (message) => {
 						args[0] === "crystalisles"
 					) {
 						console.log(
-							`[${getTimestamp()}] (${
+							`[${utils.timestamp()}] (${
 								message.author.tag
 							}): start - ${args[0]}`
 						);
@@ -144,7 +167,7 @@ client.on("messageCreate", (message) => {
 						// If the argument wasn't a correct map name
 					} else {
 						console.log(
-							`[${getTimestamp()}] (${
+							`[${utils.timestamp()}] (${
 								message.author.tag
 							}): start - INVALID MAP: ${args[0]}`
 						);
@@ -163,7 +186,7 @@ client.on("messageCreate", (message) => {
 		isRunning("ShooterGameServer.exe", (status) => {
 			if (status) {
 				console.log(
-					`[${getTimestamp()}] (${
+					`[${utils.timestamp()}] (${
 						message.author.tag
 					}): stop - stopping server...`
 				);
@@ -171,7 +194,7 @@ client.on("messageCreate", (message) => {
 				stopServer();
 			} else {
 				console.log(
-					`[${getTimestamp()}] (${
+					`[${utils.timestamp()}] (${
 						message.author.tag
 					}): stop - server is not running`
 				);
@@ -186,14 +209,14 @@ client.on("messageCreate", (message) => {
 		isRunning("ShooterGameServer.exe", (status) => {
 			if (status) {
 				console.log(
-					`[${getTimestamp()}] (${
+					`[${utils.timestamp()}] (${
 						message.author.tag
 					}): status - running`
 				);
 				message.reply("Local: The server is running! :thumbsup:");
 			} else {
 				console.log(
-					`[${getTimestamp()}] (${
+					`[${utils.timestamp()}] (${
 						message.author.tag
 					}): status - not running`
 				);
@@ -211,14 +234,14 @@ client.on("messageCreate", (message) => {
 					if (response.data.response.success === true) {
 						if (response.data.response.servers.length > 0) {
 							console.log(
-								`[${getTimestamp()}] (Steam API): status - running`
+								`[${utils.timestamp()}] (Steam API): status - running`
 							);
 							message.reply(
 								"Steam API: Server is connected to Steam!"
 							);
 						} else {
 							console.log(
-								`[${getTimestamp()}] (Steam API): status - not running`
+								`[${utils.timestamp()}] (Steam API): status - not running`
 							);
 							message.reply(
 								"Steam API: Server isn't connected to Steam."
@@ -235,7 +258,7 @@ client.on("messageCreate", (message) => {
 		isRunning("ShooterGameServer.exe", (status) => {
 			if (status) {
 				console.log(
-					`[${getTimestamp()}] (${
+					`[${utils.timestamp()}] (${
 						message.author.tag
 					}): update - stopping server to update`
 				);
@@ -244,7 +267,7 @@ client.on("messageCreate", (message) => {
 				updateServer(message);
 			} else {
 				console.log(
-					`[${getTimestamp()}] (${
+					`[${utils.timestamp()}] (${
 						message.author.tag
 					}): update - updating server`
 				);
@@ -257,34 +280,20 @@ client.on("messageCreate", (message) => {
 
 // Attempt to reconnect if the bot ever disconnects
 client.on("error", (error) => {
-	console.log(`[${getTimestamp()}] (ERROR) - ${error.message}`);
-	console.log(`[${getTimestamp()}] attempting to reconnect...`);
+	console.log(`[${utils.timestamp()}] (ERROR) - ${error.message}`);
+	console.log(`[${utils.timestamp()}] attempting to reconnect...`);
 	let reconnect = setInterval(() => {
 		if (client.status === 0) {
 			clearInterval(reconnect);
 		} else {
 			client.login(token).catch(() => {
 				console.log(
-					`[${getTimestamp()}] reconnect failed. trying again...`
+					`[${utils.timestamp()}] reconnect failed. trying again...`
 				);
 			});
 		}
 	}, reconnect_delay);
 });
-
-// Return a new date in 24-hour format: 14:22:39
-function getTimestamp() {
-	let date = new Date();
-	return (
-		date.toLocaleDateString("en-US", {
-			month: "2-digit",
-			day: "2-digit",
-			year: "numeric",
-		}) +
-		" " +
-		date.toLocaleTimeString("en-us", { hour12: false })
-	);
-}
 
 function userIsAuthorized(message) {
 	// Check if user has a whitelisted name or role
@@ -360,7 +369,7 @@ function startServer(message, map) {
 		});
 	} else {
 		console.log(
-			`[${getTimestamp()}] (${
+			`[${utils.timestamp()}] (${
 				message.author.tag
 			}): start - INVALID MAP ARG: ${map}`
 		);
@@ -407,7 +416,7 @@ function stopServer() {
 			stdout.split("\n").forEach((line) => {
 				if (/^(?!\s*$).+/.test(line)) {
 					console.log(
-						`[${getTimestamp()}] (TASKKILL):`,
+						`[${utils.timestamp()}] (TASKKILL):`,
 						"stdout -",
 						line
 					);
@@ -420,7 +429,7 @@ function stopServer() {
 			stderr.split("\n").forEach((line) => {
 				if (/^(?!\s*$).+/.test(line)) {
 					console.log(
-						`[${getTimestamp()}] (TASKKILL):`,
+						`[${utils.timestamp()}] (TASKKILL):`,
 						"stderr -",
 						line
 					);
