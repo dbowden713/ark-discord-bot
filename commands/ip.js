@@ -2,7 +2,7 @@ const { SlashCommandBuilder } = require("discord.js");
 axios = require("axios");
 const utils = require("../utils");
 
-// !ip returns the current IP address of ark-bot
+// /ip returns the current IP address of ark-bot
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName("ip")

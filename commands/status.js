@@ -2,7 +2,7 @@ const { SlashCommandBuilder } = require("discord.js");
 axios = require("axios");
 const utils = require("../utils");
 
-// !status displays the current server status. Checks local process list and Steam API
+// /status displays the current server status. Checks local process list and Steam API
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName("status")
@@ -13,13 +13,7 @@ module.exports = {
 		var runningLocally = false;
 		var connectedToSteam = false;
 		// Check local process list
-		utils.isRunning("ShooterGameServer.exe", (status) => {
-			if (status) {
-				runningLocally = true;
-			} else {
-				runningLocally = false;
-			}
-		});
+		runningLocally = await utils.serverIsRunning();
 
 		// Check Steam API
 		await axios
@@ -27,7 +21,7 @@ module.exports = {
 			.then((response) => {
 				axios
 					.get(
-						`http://api.steampowered.com/ISteamApps/GetServersAtAddress/v1?addr=${response.data.ip}`
+						`https://api.steampowered.com/ISteamApps/GetServersAtAddress/v1?addr=${response.data.ip}`
 					)
 					.then((response) => {
 						if (response.data.response.success === true) {

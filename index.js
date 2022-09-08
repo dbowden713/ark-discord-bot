@@ -181,28 +181,6 @@ client.on("messageCreate", (message) => {
 		});
 	}
 
-	// !stop attempts to kill the server process if it's currently running
-	if (command === "stop") {
-		isRunning("ShooterGameServer.exe", (status) => {
-			if (status) {
-				console.log(
-					`[${utils.timestamp()}] (${
-						message.author.tag
-					}): stop - stopping server...`
-				);
-				message.reply("Shutting down the server! :dizzy_face:");
-				stopServer();
-			} else {
-				console.log(
-					`[${utils.timestamp()}] (${
-						message.author.tag
-					}): stop - server is not running`
-				);
-				message.reply("The server isn't running. :thinking:");
-			}
-		});
-	}
-
 	// !update updates the server using SteamCMD
 	if (command === "update") {
 		// The server should be stopped before updating
@@ -344,42 +322,6 @@ function updateServer(message) {
     }).on('line', line => {
         console.log(line);
     }); */
-}
-
-function stopServer() {
-	// Attempt to stop the server process
-	exec(`taskkill /im ShooterGameServer.exe /t`, (err, stdout, stderr) => {
-		// This should never run since we already made sure the process exists
-		if (err) {
-			throw err;
-		}
-
-		// The /^(?!\s*$).+/ regex keeps any blank lines from cluttering the output
-		if (stdout) {
-			stdout.split("\n").forEach((line) => {
-				if (/^(?!\s*$).+/.test(line)) {
-					console.log(
-						`[${utils.timestamp()}] (TASKKILL):`,
-						"stdout -",
-						line
-					);
-				}
-			});
-		}
-
-		// The /^(?!\s*$).+/ regex keeps any blank lines from cluttering the output
-		if (stderr) {
-			stderr.split("\n").forEach((line) => {
-				if (/^(?!\s*$).+/.test(line)) {
-					console.log(
-						`[${utils.timestamp()}] (TASKKILL):`,
-						"stderr -",
-						line
-					);
-				}
-			});
-		}
-	});
 }
 
 // Login to discord with the token from token.json

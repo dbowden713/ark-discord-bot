@@ -1,7 +1,8 @@
-const { exec, spawn } = require("child_process");
+const node_util = require("node:util");
+const exec = node_util.promisify(require("node:child_process").exec);
 
 // Return a new date in 24-hour format: 14:22:39
-function getTimestamp() {
+const getTimestamp = () => {
 	let date = new Date();
 	return (
 		date.toLocaleDateString("en-US", {
@@ -12,15 +13,52 @@ function getTimestamp() {
 		" " +
 		date.toLocaleTimeString("en-us", { hour12: false })
 	);
-}
+};
 
-// Uses tasklist command and checks for (query) in the process list, with a callback for the result
-const isRunning = (query, cb) => {
-	let cmd = `tasklist`;
-	exec(cmd, (err, stdout, stderr) => {
-		cb(stdout.toLowerCase().indexOf(query.toLowerCase()) > -1);
+// Uses tasklist command and checks for the server in the process list
+const isRunning = async () => {
+	const { stdout, stderr } = await exec("tasklist");
+	return (
+		stdout.toLowerCase().indexOf("ShooterGameServer.exe".toLowerCase()) > -1
+	);
+};
+
+const stopServer = () => {
+	// Attempt to stop the server process
+	exec(`taskkill /im ShooterGameServer.exe /t`, (err, stdout, stderr) => {
+		// This should never run since we already made sure the process exists
+		if (err) {
+			throw err;
+		}
+
+		// The /^(?!\s*$).+/ regex keeps any blank lines from cluttering the output
+		if (stdout) {
+			stdout.split("\n").forEach((line) => {
+				if (/^(?!\s*$).+/.test(line)) {
+					console.log(
+						`[${getTimestamp()}] (TASKKILL):`,
+						"stdout -",
+						line
+					);
+				}
+			});
+		}
+
+		// The /^(?!\s*$).+/ regex keeps any blank lines from cluttering the output
+		if (stderr) {
+			stderr.split("\n").forEach((line) => {
+				if (/^(?!\s*$).+/.test(line)) {
+					console.log(
+						`[${getTimestamp()}] (TASKKILL):`,
+						"stderr -",
+						line
+					);
+				}
+			});
+		}
 	});
 };
 
 exports.timestamp = getTimestamp;
-exports.isRunning = isRunning;
+exports.serverIsRunning = isRunning;
+exports.stopServer = stopServer;
