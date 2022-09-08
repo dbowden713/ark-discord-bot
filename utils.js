@@ -1,3 +1,5 @@
+const { exec, spawn } = require("child_process");
+
 // Return a new date in 24-hour format: 14:22:39
 function getTimestamp() {
 	let date = new Date();
@@ -12,4 +14,13 @@ function getTimestamp() {
 	);
 }
 
+// Uses tasklist command and checks for (query) in the process list, with a callback for the result
+const isRunning = (query, cb) => {
+	let cmd = `tasklist`;
+	exec(cmd, (err, stdout, stderr) => {
+		cb(stdout.toLowerCase().indexOf(query.toLowerCase()) > -1);
+	});
+};
+
 exports.timestamp = getTimestamp;
+exports.isRunning = isRunning;

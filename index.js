@@ -203,55 +203,6 @@ client.on("messageCreate", (message) => {
 		});
 	}
 
-	// !status displays the current server status. Checks local process list and Steam API
-	if (command === "status") {
-		// Check local process list
-		isRunning("ShooterGameServer.exe", (status) => {
-			if (status) {
-				console.log(
-					`[${utils.timestamp()}] (${
-						message.author.tag
-					}): status - running`
-				);
-				message.reply("Local: The server is running! :thumbsup:");
-			} else {
-				console.log(
-					`[${utils.timestamp()}] (${
-						message.author.tag
-					}): status - not running`
-				);
-				message.reply("Local: The server isn't running. :thumbsdown:");
-			}
-		});
-
-		// Check Steam API
-		axios.get("https://www.myexternalip.com/json").then((response) => {
-			axios
-				.get(
-					`http://api.steampowered.com/ISteamApps/GetServersAtAddress/v1?addr=${response.data.ip}`
-				)
-				.then((response) => {
-					if (response.data.response.success === true) {
-						if (response.data.response.servers.length > 0) {
-							console.log(
-								`[${utils.timestamp()}] (Steam API): status - running`
-							);
-							message.reply(
-								"Steam API: Server is connected to Steam!"
-							);
-						} else {
-							console.log(
-								`[${utils.timestamp()}] (Steam API): status - not running`
-							);
-							message.reply(
-								"Steam API: Server isn't connected to Steam."
-							);
-						}
-					}
-				});
-		});
-	}
-
 	// !update updates the server using SteamCMD
 	if (command === "update") {
 		// The server should be stopped before updating
@@ -317,14 +268,6 @@ function userIsAuthorized(message) {
 
 	return false;
 }
-
-// Uses tasklist command and checks for (query) in the process list, with a callback for the result
-const isRunning = (query, cb) => {
-	let cmd = `tasklist`;
-	exec(cmd, (err, stdout, stderr) => {
-		cb(stdout.toLowerCase().indexOf(query.toLowerCase()) > -1);
-	});
-};
 
 function startServer(message, map) {
 	if (map === "island") {
