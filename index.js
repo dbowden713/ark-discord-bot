@@ -106,81 +106,6 @@ client.on("messageCreate", (message) => {
 	const args = message.content.slice(prefix.length).toLowerCase().split(" ");
 	const command = args.shift().toLowerCase();
 
-	// !start attempts to start a server if one isn't already running
-	if (command === "start") {
-		isRunning("ShooterGameServer.exe", (status) => {
-			// Do nothing if a server instance is already running
-			if (status) {
-				console.log(
-					`[${utils.timestamp()}] (${
-						message.author.tag
-					}): start - server is already running`
-				);
-				message.reply("The server is already running! :thinking:");
-			} else {
-				// No map name given. Example: !start
-				if (args.length === 0) {
-					console.log(
-						`[${utils.timestamp()}] (${
-							message.author.tag
-						}): start - NO MAP GIVEN!`
-					);
-					message.reply("Please give a map to start! :dizzy_face:");
-					message.channel.send("Example: `!start island`");
-					message.channel.send(
-						"Maps: `island, scorchedearth, ragnarok, aberration, valguero, lostisland, genesis, crystalisles`"
-					);
-					// Too many arguments given. Example: !start my map
-				} else if (args.length > 1) {
-					console.log(
-						`[${utils.timestamp()}] (${
-							message.author.tag
-						}): start - TOO MANY ARGS: ${args}`
-					);
-					message.reply("IDK What you're saying! :sob:");
-					message.channel.send("Example: `!start island`");
-					message.channel.send(
-						"Maps: `island, scorchedearth, ragnarok, aberration, valguero, lostisland, genesis, crystalisles`"
-					);
-					// One argument given. Check that it is actually a valid map name
-				} else {
-					// If the argument was a valid map name
-					if (
-						args[0] === "island" ||
-						args[0] === "scorchedearth" ||
-						args[0] === "ragnarok" ||
-						args[0] === "aberration" ||
-						args[0] === "valguero" ||
-						args[0] === "lostisland" ||
-						args[0] === "genesis" ||
-						args[0] === "crystalisles"
-					) {
-						console.log(
-							`[${utils.timestamp()}] (${
-								message.author.tag
-							}): start - ${args[0]}`
-						);
-						message.reply(
-							`Starting the \`${args[0]}\` server! :thumbsup:`
-						);
-						startServer(message, args[0]);
-						// If the argument wasn't a correct map name
-					} else {
-						console.log(
-							`[${utils.timestamp()}] (${
-								message.author.tag
-							}): start - INVALID MAP: ${args[0]}`
-						);
-						message.reply("That's not a map! :angry:");
-						message.channel.send(
-							"Maps: `island, scorchedearth, ragnarok, aberration, valguero, lostisland, genesis, crystalisles`"
-						);
-					}
-				}
-			}
-		});
-	}
-
 	// !update updates the server using SteamCMD
 	if (command === "update") {
 		// The server should be stopped before updating
@@ -245,56 +170,6 @@ function userIsAuthorized(message) {
 	}
 
 	return false;
-}
-
-function startServer(message, map) {
-	if (map === "island") {
-		server = spawn("start_island.bat", [], {
-			cwd: "C:\\Ark\\ArkServer\\ShooterGame\\Binaries\\Win64\\",
-			shell: true,
-		});
-	} else if (map === "scorchedearth") {
-		server = spawn("start_scorchedearth.bat", [], {
-			cwd: "C:\\Ark\\ArkServer\\ShooterGame\\Binaries\\Win64\\",
-			shell: true,
-		});
-	} else if (map === "ragnarok") {
-		server = spawn("start_ragnarok.bat", [], {
-			cwd: "C:\\Ark\\ArkServer\\ShooterGame\\Binaries\\Win64\\",
-			shell: true,
-		});
-	} else if (map === "aberration") {
-		server = spawn("start_aberration.bat", [], {
-			cwd: "C:\\Ark\\ArkServer\\ShooterGame\\Binaries\\Win64\\",
-			shell: true,
-		});
-	} else if (map === "valguero") {
-		server = spawn("start_valguero.bat", [], {
-			cwd: "C:\\Ark\\ArkServer\\ShooterGame\\Binaries\\Win64\\",
-			shell: true,
-		});
-	} else if (map === "lostisland") {
-		server = spawn("start_lostisland.bat", [], {
-			cwd: "C:\\Ark\\ArkServer\\ShooterGame\\Binaries\\Win64\\",
-			shell: true,
-		});
-	} else if (map === "genesis") {
-		server = spawn("start_genesis.bat", [], {
-			cwd: "C:\\Ark\\ArkServer\\ShooterGame\\Binaries\\Win64\\",
-			shell: true,
-		});
-	} else if (map === "crystalisles") {
-		server = spawn("start_crystalisles.bat", [], {
-			cwd: "C:\\Ark\\ArkServer\\ShooterGame\\Binaries\\Win64\\",
-			shell: true,
-		});
-	} else {
-		console.log(
-			`[${utils.timestamp()}] (${
-				message.author.tag
-			}): start - INVALID MAP ARG: ${map}`
-		);
-	}
 }
 
 function updateServer(message) {

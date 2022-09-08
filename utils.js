@@ -1,5 +1,7 @@
 const node_util = require("node:util");
 const exec = node_util.promisify(require("node:child_process").exec);
+const spawn = node_util.promisify(require("node:child_process").spawn);
+const config = require("./config");
 
 // Return a new date in 24-hour format: 14:22:39
 const getTimestamp = () => {
@@ -21,6 +23,13 @@ const isRunning = async () => {
 	return (
 		stdout.toLowerCase().indexOf("ShooterGameServer.exe".toLowerCase()) > -1
 	);
+};
+
+const startServer = async (map) => {
+	await spawn(config.map_scripts[map], [], {
+		cwd: config.scripts_dir,
+		shell: true,
+	});
 };
 
 const stopServer = () => {
@@ -61,4 +70,5 @@ const stopServer = () => {
 
 exports.timestamp = getTimestamp;
 exports.serverIsRunning = isRunning;
+exports.startServer = startServer;
 exports.stopServer = stopServer;

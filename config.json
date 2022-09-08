@@ -1,11 +1,19 @@
 {
 	"prefix": "!",
 	"reconnect_delay": 5000,
-	"authorized_users": [
-	],
-	"authorized_roles": [
-		"Otter Tamer"
-	],
+	"authorized_users": [],
+	"authorized_roles": ["Otter Tamer"],
 	"steamcmd_dir": "C:\\Ark\\SteamCMD",
-	"arkserver_dir": "C:\\Ark\\ArkServer"
+	"arkserver_dir": "C:\\Ark\\ArkServer",
+	"scripts_dir": "C:\\Ark\\ArkServer\\ShooterGame\\Binaries\\Win64\\",
+	"map_scripts": {
+		"island": "start_island",
+		"scorchedearth": "start_scorchedearth.bat",
+		"ragnarok": "start_ragnarok.bat",
+		"aberration": "start_abberation.bat",
+		"valguero": "start_valguero.bat",
+		"genesis": "start_genesis.bat",
+		"crystalisles": "start_crystalisles.bat",
+		"lostisland": "start_lostisland.bat"
+	}
 }
