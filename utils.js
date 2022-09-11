@@ -1,6 +1,8 @@
+const { stdout } = require("node:process");
 const node_util = require("node:util");
 const exec = node_util.promisify(require("node:child_process").exec);
-const spawn = node_util.promisify(require("node:child_process").spawn);
+const spawn = require("node:child_process").spawn;
+const query = require("source-server-query");
 const config = require("./config");
 
 // Return a new date in 24-hour format: 14:22:39
@@ -25,8 +27,8 @@ const isRunning = async () => {
 	);
 };
 
-const startServer = async (map) => {
-	await spawn(config.map_scripts[map], [], {
+const startServer = (map) => {
+	spawn(config.map_scripts[map], [], {
 		cwd: config.scripts_dir,
 		shell: true,
 	});
@@ -68,7 +70,42 @@ const stopServer = () => {
 	});
 };
 
+const updateServer = (interaction) => {
+	// SteamCMD update script for ARK
+	let options = [
+		"+login",
+		"anonymous",
+		"+force_install_dir",
+		config.arkserver_dir,
+		"+app_update",
+		"376030",
+		"+quit",
+	];
+
+	let update = spawn("steamcmd", options, {
+		cwd: config.steamcmd_dir,
+		shell: true,
+	});
+
+	update.stdout.on("data", (data) => {
+		if (data.includes("Success!")) {
+			console.log(`[${getTimestamp()}] (SteamCMD): update - success`);
+			interaction.editReply("Server updated! :ok_hand:");
+		}
+	});
+};
+
+const serverInfo = async () => {
+	try {
+		return await query.info("127.0.0.1", 27015, 1000);
+	} catch (err) {
+		return -1;
+	}
+};
+
 exports.timestamp = getTimestamp;
 exports.serverIsRunning = isRunning;
 exports.startServer = startServer;
 exports.stopServer = stopServer;
+exports.updateServer = updateServer;
+exports.serverInfo = serverInfo;

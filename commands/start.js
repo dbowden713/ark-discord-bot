@@ -2,7 +2,7 @@ const { SlashCommandBuilder } = require("discord.js");
 const utils = require("../utils");
 const map_choices = require("../config.json").map_scripts;
 
-// !start attempts to start a server if one isn't already running
+// /start attempts to start a server if one isn't already running
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName("start")
@@ -29,7 +29,9 @@ module.exports = {
 					interaction.user.tag
 				}): start - server is already running`
 			);
-			interaction.reply("The server is already running! :thinking:");
+			await interaction.reply(
+				"The server is already running! :thinking:"
+			);
 		} else {
 			let map = interaction.options.getString("map");
 			console.log(
@@ -37,7 +39,7 @@ module.exports = {
 					interaction.user.tag
 				}): start - ${map}`
 			);
-			interaction.reply(`Starting the ${map} server! :thumbsup:`);
+			await interaction.reply(`Starting the ${map} server! :thumbsup:`);
 			utils.startServer(map);
 		}
 	},

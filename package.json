@@ -6,6 +6,7 @@
   "dependencies": {
     "@discordjs/rest": "^1.1.0",
     "axios": "^0.27.2",
-    "discord.js": "^14.3.0"
+    "discord.js": "^14.3.0",
+    "source-server-query": "^3.0.3"
   }
 }

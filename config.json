@@ -7,10 +7,10 @@
 	"arkserver_dir": "C:\\Ark\\ArkServer",
 	"scripts_dir": "C:\\Ark\\ArkServer\\ShooterGame\\Binaries\\Win64\\",
 	"map_scripts": {
-		"island": "start_island",
+		"island": "start_island.bat",
 		"scorchedearth": "start_scorchedearth.bat",
 		"ragnarok": "start_ragnarok.bat",
-		"aberration": "start_abberation.bat",
+		"aberration": "start_aberration.bat",
 		"valguero": "start_valguero.bat",
 		"genesis": "start_genesis.bat",
 		"crystalisles": "start_crystalisles.bat",

@@ -12,8 +12,15 @@ module.exports = {
 	async execute(interaction) {
 		var runningLocally = false;
 		var connectedToSteam = false;
+		var serverInfo;
+
 		// Check local process list
 		runningLocally = await utils.serverIsRunning();
+
+		// If server is running, attempt to get info
+		if (runningLocally) {
+			serverInfo = await utils.serverInfo();
+		}
 
 		// Check Steam API
 		await axios
@@ -34,7 +41,11 @@ module.exports = {
 						console.log(
 							`[${utils.timestamp()}] (${
 								interaction.user.tag
-							}): status - Local: ${runningLocally} | Steam: ${connectedToSteam}`
+							}): status - Local: ${runningLocally} | Map: ${
+								serverInfo && serverInfo.map
+									? serverInfo.map
+									: "unknown"
+							} | Steam: ${connectedToSteam}`
 						);
 						interaction.reply(
 							`Local: The server ${

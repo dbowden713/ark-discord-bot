@@ -5,9 +5,6 @@ const {
 	ChannelType,
 	Collection,
 } = require("discord.js");
-const axios = require("axios");
-const { spawn, exec } = require("child_process");
-const readline = require("readline");
 const fs = require("node:fs");
 const path = require("node:path");
 const utils = require("./utils");
@@ -26,16 +23,17 @@ const client = new Client({
 
 // Set up bot commands
 client.commands = new Collection();
-const commandsPath = path.join(__dirname, "commands");
+const commandsPath = path.join(__dirname, "commands"); // Look in command folder
 const commandFiles = fs
 	.readdirSync(commandsPath)
-	.filter((file) => file.endsWith(".js"));
+	.filter((file) => file.endsWith(".js")); // find .js files in command folder
 
+// For each .js file found...
 for (const file of commandFiles) {
 	const filePath = path.join(commandsPath, file);
 	const command = require(filePath);
-	// Set a new item in the Collection
-	// With the key as the command name and the value as the exported module
+
+	// Set a /command. Each /command is the same as the file name
 	client.commands.set(command.data.name, command);
 }
 
@@ -62,6 +60,7 @@ client.once("ready", () => {
 client.on("interactionCreate", async (interaction) => {
 	if (!interaction.isChatInputCommand()) return;
 
+	// Try to find interaction in command list
 	const command = interaction.client.commands.get(interaction.commandName);
 
 	if (!command) return;
@@ -105,31 +104,6 @@ client.on("messageCreate", (message) => {
 	// Check for command arguments and split into array
 	const args = message.content.slice(prefix.length).toLowerCase().split(" ");
 	const command = args.shift().toLowerCase();
-
-	// !update updates the server using SteamCMD
-	if (command === "update") {
-		// The server should be stopped before updating
-		isRunning("ShooterGameServer.exe", (status) => {
-			if (status) {
-				console.log(
-					`[${utils.timestamp()}] (${
-						message.author.tag
-					}): update - stopping server to update`
-				);
-				message.reply("Stopping server to update! :thumbsup:");
-				stopServer();
-				updateServer(message);
-			} else {
-				console.log(
-					`[${utils.timestamp()}] (${
-						message.author.tag
-					}): update - updating server`
-				);
-				message.reply("Updating server. :ok_hand:");
-				updateServer(message);
-			}
-		});
-	}
 });
 
 // Attempt to reconnect if the bot ever disconnects
@@ -170,33 +144,6 @@ function userIsAuthorized(message) {
 	}
 
 	return false;
-}
-
-function updateServer(message) {
-	// SteamCMD update script for ARK
-	let options = [
-		"+login",
-		"anonymous",
-		"+force_install_dir",
-		config.arkserver_dir,
-		"+app_update",
-		"376030",
-		"+quit",
-	];
-
-	// Start SteamCMD and attempt to update
-	let update = spawn("steamcmd", options, { cwd: config.steamcmd_dir });
-
-	update.stdout.on("data", (data) => {
-		console.log(`${data}`);
-	});
-
-	// Wait for output from SteamCMD, then send it to discord and console
-	/* readline.createInterface({
-        input: update.stdout
-    }).on('line', line => {
-        console.log(line);
-    }); */
 }
 
 // Login to discord with the token from token.json
