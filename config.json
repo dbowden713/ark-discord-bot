@@ -1,5 +1,4 @@
 {
-	"prefix": "!",
 	"reconnect_delay": 5000,
 	"authorized_users": [],
 	"authorized_roles": ["Otter Tamer"],
