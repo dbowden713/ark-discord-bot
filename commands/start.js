@@ -29,9 +29,10 @@ module.exports = {
 					interaction.user.tag
 				}): start - server is already running`
 			);
-			await interaction.reply(
-				"The server is already running! :thinking:"
-			);
+			await interaction.reply({
+				content: "The server is already running! :thinking:",
+				ephemeral: true,
+			});
 		} else {
 			let map = interaction.options.getString("map");
 			console.log(

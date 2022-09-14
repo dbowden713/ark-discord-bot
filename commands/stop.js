@@ -22,7 +22,10 @@ module.exports = {
 					interaction.user.tag
 				}): stop - server is not running`
 			);
-			await interaction.reply("The server isn't running. :thinking:");
+			await interaction.reply({
+				content: "The server isn't running. :thinking:",
+				ephemeral: true,
+			});
 		}
 	},
 };

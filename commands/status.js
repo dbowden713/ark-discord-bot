@@ -47,21 +47,23 @@ module.exports = {
 									: "unknown"
 							} | Steam: ${connectedToSteam}`
 						);
-						interaction.reply(
-							`Local: The server ${
-								runningLocally ? "is" : "isn't"
-							} running${
-								runningLocally
-									? "! :thumbsup:"
-									: ". :thumbsdown:"
-							}` +
+						interaction.reply({
+							content:
+								`Local: The server ${
+									runningLocally ? "is" : "isn't"
+								} running${
+									runningLocally
+										? "! :thumbsup:"
+										: ". :thumbsdown:"
+								}` +
 								"\n" +
 								`Steam: The server ${
 									connectedToSteam ? "is" : "isn't"
 								} connected to Steam${
 									connectedToSteam ? "!" : "."
-								}`
-						);
+								}`,
+							ephemeral: true,
+						});
 					});
 			});
 	},

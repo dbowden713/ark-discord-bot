@@ -1,4 +1,3 @@
-const { stdout } = require("node:process");
 const node_util = require("node:util");
 const exec = node_util.promisify(require("node:child_process").exec);
 const spawn = require("node:child_process").spawn;
@@ -33,9 +32,7 @@ const startServer = async (map, interaction) => {
 		shell: true,
 	}).on("spawn", () => {
 		let heartbeat = setInterval(() => {
-			console.log(`[${getTimestamp()}] beat... `);
 			serverInfo().then((status) => {
-				console.log(status.map);
 				if (status.map) {
 					interaction.editReply("Server startup complete!");
 					clearInterval(heartbeat);
