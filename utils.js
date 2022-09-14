@@ -27,10 +27,21 @@ const isRunning = async () => {
 	);
 };
 
-const startServer = (map) => {
+const startServer = async (map, interaction) => {
 	spawn(config.map_scripts[map], [], {
 		cwd: config.scripts_dir,
 		shell: true,
+	}).on("spawn", () => {
+		let heartbeat = setInterval(() => {
+			console.log(`[${getTimestamp()}] beat... `);
+			serverInfo().then((status) => {
+				console.log(status.map);
+				if (status.map) {
+					interaction.editReply("Server startup complete!");
+					clearInterval(heartbeat);
+				}
+			});
+		}, 10000);
 	});
 };
 

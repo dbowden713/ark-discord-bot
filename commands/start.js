@@ -40,7 +40,7 @@ module.exports = {
 				}): start - ${map}`
 			);
 			await interaction.reply(`Starting the ${map} server! :thumbsup:`);
-			utils.startServer(map);
+			utils.startServer(map, interaction);
 		}
 	},
 };
