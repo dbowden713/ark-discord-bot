@@ -34,7 +34,7 @@ const startServer = (map) => {
 	});
 };
 
-const stopServer = () => {
+const stopServer = async () => {
 	// Attempt to stop the server process
 	exec(`taskkill /im ShooterGameServer.exe /t`, (err, stdout, stderr) => {
 		// This should never run since we already made sure the process exists

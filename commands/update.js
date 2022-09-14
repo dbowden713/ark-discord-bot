@@ -17,7 +17,9 @@ module.exports = {
 				}): update - stopping server to update`
 			);
 			await interaction.reply("Stopping server to update! :thumbsup:");
-			utils.updateServer();
+			utils.stopServer().then((x) => {
+				utils.updateServer(interaction);
+			});
 		} else {
 			console.log(
 				`[${utils.timestamp()}] (${
