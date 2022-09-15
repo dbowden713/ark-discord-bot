@@ -1,4 +1,8 @@
-const { SlashCommandBuilder } = require("discord.js");
+const {
+	SlashCommandBuilder,
+	EmbedBuilder,
+	AttachmentBuilder,
+} = require("discord.js");
 axios = require("axios");
 const utils = require("../utils");
 
@@ -47,22 +51,60 @@ module.exports = {
 									: "unknown"
 							} | Steam: ${connectedToSteam}`
 						);
-						interaction.reply({
-							content:
-								`Local: The server ${
-									runningLocally ? "is" : "isn't"
-								} running${
-									runningLocally
-										? "! :thumbsup:"
-										: ". :thumbsdown:"
-								}` +
-								"\n" +
-								`Steam: The server ${
-									connectedToSteam ? "is" : "isn't"
-								} connected to Steam${
-									connectedToSteam ? "!" : "."
-								}`,
-							ephemeral: true,
+						const file = new AttachmentBuilder(
+							"https://static.wikia.nocookie.net/arksurvivalevolved_gamepedia/images/2/24/ARK.png"
+						);
+						interaction.deferReply().then(() => {
+							const statusEmbed = new EmbedBuilder()
+								.setColor(0x0099ff)
+								.setTitle("Server Status")
+								.setThumbnail("attachment://ARK.png")
+								.addFields(
+									{
+										name: "Local",
+										value: runningLocally
+											? "Running"
+											: "Not Running",
+										inline: true,
+									},
+									{
+										name: "\u200B",
+										value: "\u200B",
+										inline: true,
+									},
+									{
+										name: "Steam",
+										value: connectedToSteam
+											? "Connected"
+											: "Not Connected",
+										inline: true,
+									}
+								);
+							if (serverInfo && serverInfo != -1) {
+								statusEmbed
+									.setDescription(serverInfo.name)
+									.addFields(
+										{
+											name: "Map",
+											value: serverInfo.map,
+											inline: true,
+										},
+										{
+											name: "\u200B",
+											value: "\u200B",
+											inline: true,
+										},
+										{
+											name: "Players",
+											value: `${serverInfo.players}/${serverInfo.max_players}`,
+											inline: true,
+										}
+									);
+							}
+							interaction.editReply({
+								embeds: [statusEmbed],
+								files: [file],
+							});
 						});
 					});
 			});
