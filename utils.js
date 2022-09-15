@@ -34,7 +34,12 @@ const startServer = async (map, interaction) => {
 		let heartbeat = setInterval(() => {
 			serverInfo().then((status) => {
 				if (status.map) {
+					console.log(`[${getTimestamp()}] startup complete`);
 					interaction.editReply("Server startup complete!");
+					interaction.followUp({
+						content: `<@${interaction.user.id}> Server startup complete!`,
+						ephemeral: true,
+					});
 					clearInterval(heartbeat);
 				}
 			});
@@ -99,6 +104,10 @@ const updateServer = (interaction) => {
 		if (data.includes("Success!")) {
 			console.log(`[${getTimestamp()}] (SteamCMD): update - success`);
 			interaction.editReply("Server updated! :ok_hand:");
+			interaction.followUp({
+				content: `<@${interaction.user.id}> Server updated! :ok_hand:`,
+				ephemeral: true,
+			});
 		}
 	});
 };
